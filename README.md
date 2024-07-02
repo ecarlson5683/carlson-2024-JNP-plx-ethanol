@@ -1,4 +1,4 @@
-# ecarlson5683-carlson-2024-JNP-plx-ethanol
+# carlson-2024-JNP-plx-ethanol
 
 ## Overview 
 This repository contains data and code used for the analyses presented in the manuscript titled "Pharmacological depletion of microglia protects from alcohol-induced corticolimbic neurodegeneration in male rats" (Carlson, Melbourne, and Nixon, in submission, *Journal of Neuroimmune Pharmacology*).
