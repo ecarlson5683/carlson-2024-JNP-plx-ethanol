@@ -8,49 +8,56 @@ The RMarkdown document titled "MGD_Analyses.Rmd" includes R code to:
 - Conduct two-way ANOVA on cell count data with drug (PLX5622 vs vehicle) and diet (ethanol vs control) as between-subjects factors along with pairwise comparisons of simple effects with Bonferroni correction when appropriate.
 - Read data related to intoxication behavior, ethanol dose, and blood ethanol concentrations and conduct Welch t-tests.
 
+## Dependencies
+The following packages are required to run this code and can be installed using `install.packages("<package>")`:
+- {tidyverse}
+- {afex}
+- {emmeans}
+- {rstatix}
+
 ## ***data*** Directory
 The ***data*** directory includes the following files:
-- *intoxication.csv*: Contains behavioral intoxication scores for each dosing session (every 8 h) with the following variables (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
-  - subject: individual id number
-  - condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
-  - sex
-  - study: cohort id
+- **intoxication.csv**: Contains behavioral intoxication scores for each dosing session (every 8 h) with the following variables (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
+  - Subject: individual id number
+  - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - Sex
+  - Study: cohort id
   - PLX_admin: route of administration for vehicle or PLX
   - dose_01 to dose_12: behavioral intoxication scores for each dosing session
-- *dose.csv*: Contains ethanol dose (g/kg) given in each dosing session (every 8 h) with the following variables (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
-  - subject: individual id number
-  - condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
-  - sex
-  - study: cohort id
+- **dose.csv**: Contains ethanol dose (g/kg) given in each dosing session (every 8 h) with the following variables (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
+  - Subject: individual id number
+  - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - Sex
+  - Study: cohort id
   - PLX_admin: route of administration for vehicle or PLX
   - dose_01 to dose_12: ethanol dose (g/kg) for each dosing session
-- *BEC.csv*: Contains blood ethanol concentrations determined from tail blood collected 90 min following the 7th dose of ethanol (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
-  - subject: individual id number
-  - condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
-  - sex
-  - study: cohort id
+- **BEC.csv**: Contains blood ethanol concentrations determined from tail blood collected 90 min following the 7th dose of ethanol (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
+  - Subject: individual id number
+  - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - Sex
+  - Study: cohort id
   - PLX_admin: route of administration for vehicle or PLX
   - run_01, run_02: BEC measurements run in duplicate
-- *Iba1_raw_ERC.csv*: Contains output of ImageJ macro (Iba1+ cell counts; ERC naming convention) with the following variables:
+- **Iba1_raw_ERC.csv**: Contains output of ImageJ macro (Iba1+ cell counts; ERC naming convention) with the following variables:
   - Slice: Image name
   - Count: Iba1+ cell count
   - Total Area: 
   - Average Size:
   - %Area:
-- *Iba1_raw_JM.csv*: Contains output of ImageJ macro (Iba1+ cell counts; JM naming convention) with the following variables:
+- **Iba1_raw_JM.csv**: Contains output of ImageJ macro (Iba1+ cell counts; JM naming convention) with the following variables:
   - Slice: Image name
   - Count: Iba1+ cell count
   - Total Area:
   - Average Size:
   - %Area:
-- *MGD_subjects.csv*: Contains meta data for Iba1 analysis with the following variables:
+- **MGD_subjects.csv**: Contains meta data for Iba1 analysis with the following variables:
   - Subject: individual id number
   - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
   - Sex
   - Study: cohort id
   - PLX_admin: route of administration for vehicle or PLX
   - Region: brain region
-- *FJB.csv*: Contains FJB+ cell counts averaged across brain-region-containing slice (section) with the following variables:
+- **FJB.csv**: Contains FJB+ cell counts averaged across brain-region-containing slice (section) with the following variables:
   - Subject: individual id number
   - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
   - Study: cohort id
@@ -61,8 +68,24 @@ NOTES:
 - All data files are in comma separated value (".csv") format.
 
 ## ***data/results*** Directory
-The ***data/results*** directory includes the results of the statistical analyses. These files have the following names:
-- 
+The ***data/results*** directory contains summary statistics and Welch's t-tests conducted comparing the effects of drug (PLX5622 vs vehicle) on the following ethanol binge metrics: blood ethanol concentration (bec), dose of ethanol (dose), and behavioral intoxication (intoxication) using {rstatix}. It also has the results of two-way ANOVAs and pairwise comparisons conducted on the effects of drug (PLX5622 vs vehicle) and diet (ethanol vs control) on Iba1+ (microglia) cell counts and FJB+ (dying neurons) cell counts using {rstatix}, {emmeans}, and {afex}. Finally, the percentage difference between drug treatment within diet for Iba1+ cell counts is included. These files have the following self explanatory names:
+- **bec_summary.csv**
+- **bec_ttest.csv**
+- **dose_summary.csv**
+- **dose_ttest.csv**
+- **FJB_counts_hippo_aov2_posthoc.csv**
+- **FJB_counts_hippo_aov2.csv**
+- **FJB_counts_rhinal_aov2_posthoc.csv**
+- **FJB_counts_rhinal_aov2.csv**
+- **FJB_summary.csv**
+- **Iba1_counts_hippo_aov2.csv**
+- **Iba1_counts_hippo_pwc.csv**
+- **Iba1_counts_rhinal_aov2.csv**
+- **Iba1_counts_rhinal_pwc.csv**
+- **Iba1_counts.csv**
+- **Iba1_percentdiff.csv**
+- **intoxication_summary.csv**
+- **intoxication_ttest.csv**
 
 ## References
 Data analysis was conducted in RStudio v2023.12.1.402 (Posit team, 2024) with R v4.2.2 (R Core Team, 2022) using rstatix (Kassambara, 2022), afex (Singmann et al., 2023), and emmeans (Lenth, 2022) packages with visualization in Prism v10.0.3 (GraphPad).

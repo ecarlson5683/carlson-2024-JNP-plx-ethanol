@@ -39,7 +39,7 @@ Tissue was prepared by phosphate-buffered saline perfusion, brain extraction and
 
 # Preliminaries
 
-```{r Load libraries}
+```{r Load libraries, message = FALSE, warning = FALSE}
 library(tidyverse) # for data wrangling
 library(rstatix) # for statistical analysis
 library(emmeans) # for statistical analysis
@@ -51,14 +51,14 @@ library(afex) # dependency for ANOVA analysis
 # Binge statistics
 
 ```{r Load and process intoxication scores}
-# Load behavioral intoxication score data
-intox <- read_csv("data/intoxication.csv")
-
 # Indicate path to save results
 results_path <- "data/results/"
 
-# Check structure of data
-str(intox)
+# Load behavioral intoxication score data
+intox <- read_csv("data/intoxication.csv")
+
+# Check data
+slice_sample(intox, n = 6)
 
 # Add unique subject id
 intox$id <- paste(intox$Subject, intox$Study, sep = "-")
@@ -74,6 +74,7 @@ intox_summary <- intox %>%
   get_summary_stats(mean, type = "mean_se") %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/intoxication_summary.csv"))
+intox_summary
 
 # Compute two-sample unpaired t-test on average behavioral intoxication
 intox_ttest <- intox %>% 
@@ -81,18 +82,19 @@ intox_ttest <- intox %>%
   add_significance() %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/intoxication_ttest.csv"))
+intox_ttest
 ```
 
 
 ```{r Load and process ethanol dose}
-# Load ethanol dose data
-dose <- read_csv("data/dose.csv")
-
 # Indicate path to save results
 results_path <- "data/results/"
 
-# Check structure of data
-str(dose)
+# Load ethanol dose data
+dose <- read_csv("data/dose.csv")
+
+# Check data
+slice_sample(dose, n = 6)
 
 # Add unique subject id
 dose$id <- paste(dose$Subject, dose$Study, sep = "-")
@@ -113,6 +115,7 @@ dose_summary <- dose %>%
   get_summary_stats(day_mean, type = "mean_se") %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/dose_summary.csv"))
+dose_summary
 
 # Compute two-sample unpaired t-test on average daily dose
 dose_ttest <- dose %>% 
@@ -120,18 +123,19 @@ dose_ttest <- dose %>%
   add_significance() %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/dose_ttest.csv"))
+dose_ttest
 ```
 
 
 ```{r Load and process blood ethanol concentrations}
-# Load bec data
-bec <- read_csv("data/BEC.csv")
-
 # Indicate path to save results
 results_path <- "data/results/"
 
-# Check structure of data
-str(bec)
+# Load bec data
+bec <- read_csv("data/BEC.csv")
+
+# Check data
+slice_sample(bec, n = 6)
 
 # Add unique subject id
 bec$id <- paste(bec$Subject, bec$Study, sep = "-")
@@ -147,6 +151,7 @@ bec_summary <- bec %>%
   get_summary_stats(mean, type = "mean_se") %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/bec_summary.csv"))
+bec_summary
 
 # Compute two-sample unpaired t-test on average behavioral intoxication
 bec_ttest <- bec %>% 
@@ -154,6 +159,7 @@ bec_ttest <- bec %>%
   add_significance() %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/bec_ttest.csv"))
+bec_ttest
 ```
 
 
@@ -265,6 +271,9 @@ csv_df <- map(csv_path, rawdata_csvread) %>% bind_rows()
 
 # Add a column to differentiate same number subjects during analysis
 csv_df$id <- paste(csv_df$Subject, csv_df$Study, sep = "-")
+
+# Check data
+slice_sample(csv_df, n = 6)
 ```
 
 
@@ -303,6 +312,7 @@ csv_counts_sum <- csv_counts_bysubject_condition %>%
   ungroup() %>%
   pivot_wider(names_from = 'Drug', values_from = 'mean') %>% 
   mutate(percent_loss = (`VEH` - `PLX`) / `VEH` * 100)
+csv_counts_sum
 
 # Export .csv files
 results_path <- "data/results"
@@ -318,15 +328,20 @@ write_csv(csv_counts_sum,
 ## Statistical analysis of Iba1 cell counts
 
 ```{r Iba1 analysis}
-MGD_Iba1 <- read_csv("data/results/Iba1_counts.csv", col_names = TRUE)
+
+iba1 <- read_csv("data/results/Iba1_counts.csv", col_names = TRUE)
 
 results_path <- "data/results"
 
+# Check data
+slice_sample(iba1, n = 6)
+
 # Compute two-way ANOVA for hippocampus
-two.way <- MGD_Iba1 %>%
+two.way <- iba1 %>%
   filter(Region == 'Hippo') %>% 
   anova_test(dv = Iba1_avg, wid = id, between = c(Drug, Diet))
 two.way
+
 get_anova_table(two.way) %>%
   rownames_to_column(var = "Factor") %>%
   as_tibble() %>% 
@@ -335,25 +350,28 @@ get_anova_table(two.way) %>%
 
 # Pairwise paired t-test comparisons for hippocampus
 # a priori comparisons between drug groups within diet
-pwc <- MGD_Iba1 %>%
+pwc <- iba1 %>%
   filter(Region == 'Hippo') %>% 
   group_by(Diet) %>% 
   pairwise_t_test(
     Iba1_avg ~ Drug, paired = FALSE, 
     p.adjust.method = "bonferroni"
     )
-pwc %>%
+
+pwc <- pwc %>%
   rownames_to_column(var = "Factor") %>%
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/Iba1_counts_hippo_pwc.csv"))
+pwc
 # Significant effect of drug for both CON and EtOH
 
 
 # Compute two-way ANOVA for rhinal cortex
-two.way <- MGD_Iba1 %>%
+two.way <- iba1 %>%
   filter(Region == 'Rhinal') %>% 
   anova_test(dv = Iba1_avg, wid = id, between = c(Drug, Diet))
 two.way
+
 get_anova_table(two.way) %>%
   rownames_to_column(var = "Factor") %>%
   as_tibble() %>% 
@@ -363,17 +381,19 @@ get_anova_table(two.way) %>%
 
 # Pairwise paired t-test comparisons for rhinal cortex
 # a priori comparisons between drug groups within diet
-pwc <- MGD_Iba1 %>%
+pwc <- iba1 %>%
   filter(Region == 'Rhinal') %>% 
   group_by(Diet) %>% 
   pairwise_t_test(
     Iba1_avg ~ Drug, paired = FALSE, 
     p.adjust.method = "bonferroni"
     )
-pwc %>%
+
+pwc <- pwc %>%
   rownames_to_column(var = "Factor") %>%
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/Iba1_counts_rhinal_pwc.csv"))
+pwc
 # Significant effect of drug
 ```
 
@@ -387,6 +407,9 @@ The number of FJB+ cells per region per tissue slice was counted by hand and ave
 results_path <- "data/results"
 
 fjb <- read_csv("data/FJB.csv", col_names = TRUE)
+
+# Check data
+slice_sample(fjb, n = 6)
 
 # Add unique subject id
 fjb$id <- paste(fjb$Subject, fjb$Study, sep = "-")
@@ -407,6 +430,7 @@ fjb_grouped <- fjb %>%
   get_summary_stats(Count, type = "mean_se") %>% 
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/FJB_summary.csv"))
+fjb_grouped
 
 
 # two-way ANOVA for hippocampus
@@ -415,6 +439,7 @@ aov2_fjb_hippo <- aov_ez(id = 'id',
                          data = fjb %>% filter(Region == 'Hippo'), 
                          between = c('Diet', 'Drug')
                    )
+aov2_fjb_hippo
 
 # Add significance label and save result as tibble
 anova(aov2_fjb_hippo) %>%
@@ -432,9 +457,9 @@ anova(aov2_fjb_hippo) %>%
 
 # Post-hoc comparisons restricted to common factors with contrasts[c()]
 # Add significance labels
-(post_aov2_fjb_hippo <- emmeans(aov2_fjb_hippo, 
+post_aov2_fjb_hippo <- emmeans(aov2_fjb_hippo, 
                                 pairwise ~ Diet * Drug,
-                                adjust = "bonferroni")$contrasts[c(1,2,5,6)]) %>%
+                                adjust = "bonferroni")$contrasts[c(1,2,5,6)] %>%
   as_tibble() %>%
   mutate("p<.05" = case_when(p.value < 0.0001 ~ "****",
                              p.value < 0.001 ~ "***",
@@ -442,6 +467,7 @@ anova(aov2_fjb_hippo) %>%
                              p.value < 0.05 ~ "*",
                              p.value >= 0.05 ~ "ns")) %>% 
   write_csv(., str_c(results_path, "/FJB_counts_hippo_aov2_posthoc.csv"))
+post_aov2_fjb_hippo
 # Significant differences: EtOH PLX - EtOH VEH and CON VEH - EtOH VEH
 
 
@@ -452,6 +478,7 @@ aov2_fjb_rhinal <- aov_ez(id = 'id',
                          data = fjb %>% filter(Region == 'Rhinal'), 
                          between = c('Diet', 'Drug')
                    )
+aov2_fjb_rhinal
 
 # Add significance label and save result as tibble
 anova(aov2_fjb_rhinal) %>%
@@ -468,9 +495,9 @@ anova(aov2_fjb_rhinal) %>%
 
 
 # Post-hoc comparisons restricted to common factors with contrasts[c()]
-(post_aov2_fjb_rhinal <- emmeans(aov2_fjb_rhinal, 
+post_aov2_fjb_rhinal <- emmeans(aov2_fjb_rhinal, 
                                 pairwise ~ Diet * Drug,
-                                adjust = "bonferroni")$contrasts[c(1,2,5,6)]) %>% 
+                                adjust = "bonferroni")$contrasts[c(1,2,5,6)] %>% 
   as_tibble() %>%
   mutate("p<.05" = case_when(p.value < 0.0001 ~ "****",
                              p.value < 0.001 ~ "***",
@@ -478,6 +505,7 @@ anova(aov2_fjb_rhinal) %>%
                              p.value < 0.05 ~ "*",
                              p.value >= 0.05 ~ "ns")) %>% 
   write_csv(., str_c(results_path, "/FJB_counts_rhinal_aov2_posthoc.csv"))
+post_aov2_fjb_rhinal
 # Significant differences: EtOH PLX - EtOH VEH and CON VEH - EtOH VEH
 ```
 
