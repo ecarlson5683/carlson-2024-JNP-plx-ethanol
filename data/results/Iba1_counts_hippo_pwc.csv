@@ -1,0 +1,3 @@
+Factor,Diet,.y.,group1,group2,n1,n2,p,p.signif,p.adj,p.adj.signif
+1,CON,Iba1_avg,PLX,VEH,8,8,1.05e-5,****,1.05e-5,****
+2,EtOH,Iba1_avg,PLX,VEH,8,9,7.97e-10,****,7.97e-10,****

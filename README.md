@@ -10,7 +10,52 @@ The RMarkdown document titled "MGD_Analyses.Rmd" includes R code to:
 
 ## ***data*** Directory
 The ***data*** directory includes the following files:
-- 
+- *intoxication.csv*: Contains behavioral intoxication scores for each dosing session (every 8 h) with the following variables (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
+  - subject: individual id number
+  - condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - sex
+  - study: cohort id
+  - PLX_admin: route of administration for vehicle or PLX
+  - dose_01 to dose_12: behavioral intoxication scores for each dosing session
+- *dose.csv*: Contains ethanol dose (g/kg) given in each dosing session (every 8 h) with the following variables (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
+  - subject: individual id number
+  - condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - sex
+  - study: cohort id
+  - PLX_admin: route of administration for vehicle or PLX
+  - dose_01 to dose_12: ethanol dose (g/kg) for each dosing session
+- *BEC.csv*: Contains blood ethanol concentrations determined from tail blood collected 90 min following the 7th dose of ethanol (n = 18, 8 PLX-EtOH and 10 VEH-EtOH):
+  - subject: individual id number
+  - condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - sex
+  - study: cohort id
+  - PLX_admin: route of administration for vehicle or PLX
+  - run_01, run_02: BEC measurements run in duplicate
+- *Iba1_raw_ERC.csv*: Contains output of ImageJ macro (Iba1+ cell counts; ERC naming convention) with the following variables:
+  - Slice: Image name
+  - Count: Iba1+ cell count
+  - Total Area: 
+  - Average Size:
+  - %Area:
+- *Iba1_raw_JM.csv*: Contains output of ImageJ macro (Iba1+ cell counts; JM naming convention) with the following variables:
+  - Slice: Image name
+  - Count: Iba1+ cell count
+  - Total Area:
+  - Average Size:
+  - %Area:
+- *MGD_subjects.csv*: Contains meta data for Iba1 analysis with the following variables:
+  - Subject: individual id number
+  - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - Sex
+  - Study: cohort id
+  - PLX_admin: route of administration for vehicle or PLX
+  - Region: brain region
+- *FJB.csv*: Contains FJB+ cell counts averaged across brain-region-containing slice (section) with the following variables:
+  - Subject: individual id number
+  - Condition: treatment group in drug-diet format; vehicle (VEH), PLX5622 (PLX), ethanol diet (EtOH), control diet (CON); e.g., PLX-EtOH
+  - Study: cohort id
+  - Hippo: average FJB+ cell count per hippocampus section
+  - Rhinal: average FJB+ cell count per rhinal cortex section
 
 NOTES:
 - All data files are in comma separated value (".csv") format.

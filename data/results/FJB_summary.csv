@@ -1,0 +1,9 @@
+Condition,Region,variable,n,mean,se
+PLX-CON,Hippo,Count,8,0.258,0.103
+PLX-EtOH,Hippo,Count,8,0.278,0.093
+VEH-CON,Hippo,Count,8,0.031,0.022
+VEH-EtOH,Hippo,Count,9,6.132,2.315
+PLX-CON,Rhinal,Count,8,0.195,0.082
+PLX-EtOH,Rhinal,Count,8,0.587,0.202
+VEH-CON,Rhinal,Count,8,0,0
+VEH-EtOH,Rhinal,Count,9,3.747,1.006
