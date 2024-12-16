@@ -43,12 +43,101 @@ Tissue was prepared by phosphate-buffered saline perfusion, brain extraction and
 library(tidyverse) # for data wrangling
 library(rstatix) # for statistical analysis
 library(emmeans) # for statistical analysis
+library(lme4) # for statistical analysis
 library(afex) # dependency for ANOVA analysis
+library(ggplot2) # for data visualization
+library(ggpubr) # for data visualization
 ```
 
+```{r Graph theme}
+# Custom theme for ggplot2
+theme_prism <- function() {
+  theme_minimal(base_size = 16) +  # Use a minimal base theme
+    theme(
+      panel.grid.major = element_blank(),  # No major grid lines
+      panel.grid.minor = element_blank(),  # No minor grid lines
+      panel.background = element_rect(fill = "white", color = NA),  # White background
+      plot.background = element_rect(fill = "white", color = NA),  # White plot background
+      axis.text = element_text(color = "black"),  # Black axis text
+      axis.title = element_text(color = "black"),  # Black axis titles
+      axis.ticks = element_line(color = "black"),  # Black ticks
+      axis.line.x = element_line(color = "black"),  # Bottom axis line
+      axis.line.y = element_line(color = "black"),  # Left axis line
+      legend.position = "right",  # Legend position in x
+      legend.justification = "top", # Legend position in y
+      legend.background = element_blank(),  # Transparent legend background
+      legend.key = element_blank(),  # Remove outline around legend key
+      legend.title = element_blank(), # Remove legend key title
+      plot.title = element_text(hjust = 0.5, size = 16),  # Centered title
+      plot.subtitle = element_text(hjust = 0.5, size = 12)  # Centered subtitle
+    )
+}
+```
 
+```{r}
+palette_npg <- c("#E64B35", "#4DBBD5", "#00A087", "#3C5488",
+                 "#F39B7F", "#8491B4", "#91D1C2", "#DC0000",
+                 "#7E6148", "#B09C85")
+```
 
 # Binge statistics
+
+```{r Load and process body weights}
+# Indicate path to save results
+results_path <- "data/results/"
+
+# Load behavioral intoxication score data
+weight <- read_csv("data/weight.csv")
+
+# Check data
+slice_sample(weight, n = 6)
+
+# Add unique subject id
+weight$id <- paste(weight$Subject, weight$Study, sep = "-")
+
+# Get summary statistics per day overall
+weight_common <- weight %>% 
+  get_summary_stats(day_01, day_02, day_03, day_04, day_05, day_06, day_07, day_08, day_09, day_10, day_11, type = "common") %>% 
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/weight_common.csv"))
+
+# Obtain mean ± se starting weight overall
+weight_start <- weight_start %>% 
+    get_summary_stats(day_01, type = "mean_se") %>% 
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/weight_start.csv"))
+
+
+# Calculate average weight per subject (including FJB outlier)
+weight <- weight %>% 
+  mutate(mean = rowMeans(select(., day_01, day_02, day_03, day_04, day_05, day_06, day_07, day_08, day_09, day_10, day_11)))
+
+# Get summary statistics
+weight_summary <- weight %>%
+  get_summary_stats(mean, type = "mean_se") %>% 
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/weight_summary.csv"))
+weight_summary
+
+
+# Compute two-sample unpaired t-test on average starting weight
+weight_day_01_ttest <- weight %>% 
+  filter(id != "19-MGD2") %>% 
+  t_test(day_01 ~ Condition) %>% 
+  add_significance() %>% 
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/weight_day_01_ttest.csv"))
+weight_day_01_ttest
+
+# Compute two-sample unpaired t-test on average ending weight
+weight_day_11_ttest <- weight %>% 
+  filter(id != "19-MGD2") %>% 
+  t_test(day_11 ~ Condition) %>% 
+  add_significance() %>% 
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/weight_day_11_ttest.csv"))
+weight_day_11_ttest
+```
 
 ```{r Load and process intoxication scores}
 # Indicate path to save results
@@ -83,6 +172,40 @@ intox_ttest <- intox %>%
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/intoxication_ttest.csv"))
 intox_ttest
+
+# Reformat data for one-way ANOVA across doses
+intox_long <- intox %>% select(!mean) %>% 
+  pivot_longer(cols = dose_01:dose_12, 
+               names_to = "dose",
+               values_to = "score")
+
+# Compute two-way ANOVA for behavioral intoxication across doses
+one.way <- intox_long %>% 
+  anova_test(dv = score, between = c(Condition, dose))
+one.way
+
+get_anova_table(one.way) %>%
+  rownames_to_column(var = "Factor") %>%
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/intoxication_aov1.csv"))
+
+
+# Pairwise paired t-test comparisons
+# a priori comparisons between drug groups within time
+pwc <- intox_long %>% 
+  group_by(dose) %>% 
+  pairwise_t_test(
+    score ~ Condition, paired = FALSE, 
+    p.adjust.method = "bonferroni"
+    )
+
+pwc <- pwc %>%
+  rownames_to_column(var = "Factor") %>%
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/intoxication_pwc.csv"))
+pwc
+# Significant effect of drug for both CON and EtOH
+
 ```
 
 
@@ -162,6 +285,53 @@ bec_ttest <- bec %>%
 bec_ttest
 ```
 
+
+```{r Correlate bec and dose 7}
+bec_dose <- full_join(bec %>% select(id, Condition, mean), dose %>% select(id, Condition, dose_01, dose_02, dose_03, dose_04, dose_05, dose_06, dose_07))
+
+bec_dose <- bec_dose %>% mutate(Condition = recode(Condition, "PLX-EtOH" = "PLX", "VEH-EtOH" = "VEH"))
+
+# Calculate correlation between ethanol dose 7 and BEC
+cor_bec_dose <- bec_dose %>% group_by(Condition) %>% cor_test(dose_07, mean)
+
+condition_colors <- c("PLX" = "#118040", "VEH" = "#0000FF")
+
+
+plot1 <- ggplot(data = bec_dose, 
+                aes(x = dose_07, 
+                    y = mean, 
+                    color = Condition)) + 
+  scale_fill_manual(values = alpha(condition_colors, 0.5)) +
+  scale_color_manual(values = condition_colors) +
+  geom_point(aes(shape = Condition, 
+                 color = Condition, 
+                 fill = Condition), 
+             size = 2) + # scatterplot
+  scale_shape_manual(values = c(21, 22)) +
+  geom_smooth(method = lm, formula = y ~ x, se = FALSE) + # add line of fit
+  scale_x_continuous(limits = c(-0.05, 5), expand = c(0, 0.01)) + # set x axis bounds
+  scale_y_continuous(limits = c(0, 500), expand = c(0, 0)) + # set y axis bounds
+  theme_prism() + # use preset theme for prism-like graph
+  ylab("BEC 90 min post-dose (mg/dl)") +
+  xlab("Ethanol dose (g/kg)") +
+  labs(title = "Correlation between ethanol dose and BEC") + 
+  stat_cor(method = "pearson", aes(color = Condition), label.x = 3.17, 
+           show.legend = FALSE) # add correlation coefficients to graph
+plot1
+```
+
+```{r mixed effect model of BEC and dose}
+bec_dose_long <- bec_dose %>% pivot_longer(cols = dose_01:dose_07, names_to = "time", values_to = "dose")
+
+bec_dose_long$dose <- factor(bec_dose_long$dose)
+bec_dose_long$Condition <- factor(bec_dose_long$Condition)
+
+# Fit the mixed-effects model
+model <- lme4::lmer(mean ~ dose * Condition + (1|id), data = bec_dose_long)
+
+# Summary of the model
+summary(model)
+```
 
 
 # Iba1 cell counts
@@ -415,7 +585,7 @@ slice_sample(fjb, n = 6)
 fjb$id <- paste(fjb$Subject, fjb$Study, sep = "-")
 
 # Separate Condition into Drug and Diet columns for two-way ANOVA analysis
-# Remove outlier (19-MGD2, 45 FJB+ cells/section in hippocampus)
+# Remove outlier (19-MGD2, >300 FJB+ cells in one ventral hippocampal section)
 # Rearrange Hippo and Rhinal columns into Region and Counts columns 
 fjb <- fjb %>% 
  mutate_at(vars(Condition), factor) %>% 

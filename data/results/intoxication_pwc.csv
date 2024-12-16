@@ -1,0 +1,12 @@
+Factor,dose,.y.,group1,group2,n1,n2,p,p.signif,p.adj,p.adj.signif
+1,dose_02,score,PLX-EtOH,VEH-EtOH,8,9,0.066,ns,0.066,ns
+2,dose_03,score,PLX-EtOH,VEH-EtOH,8,9,0.00558,**,0.00558,**
+3,dose_04,score,PLX-EtOH,VEH-EtOH,8,9,0.0962,ns,0.0962,ns
+4,dose_05,score,PLX-EtOH,VEH-EtOH,8,9,0.808,ns,0.808,ns
+5,dose_06,score,PLX-EtOH,VEH-EtOH,8,9,0.156,ns,0.156,ns
+6,dose_07,score,PLX-EtOH,VEH-EtOH,8,9,0.488,ns,0.488,ns
+7,dose_08,score,PLX-EtOH,VEH-EtOH,8,9,0.123,ns,0.123,ns
+8,dose_09,score,PLX-EtOH,VEH-EtOH,8,9,0.229,ns,0.229,ns
+9,dose_10,score,PLX-EtOH,VEH-EtOH,8,9,0.919,ns,0.919,ns
+10,dose_11,score,PLX-EtOH,VEH-EtOH,8,9,0.624,ns,0.624,ns
+11,dose_12,score,PLX-EtOH,VEH-EtOH,8,9,0.0501,ns,0.0501,ns
