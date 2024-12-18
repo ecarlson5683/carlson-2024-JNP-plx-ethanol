@@ -173,27 +173,27 @@ intox_ttest <- intox %>%
   write_csv(., str_c(results_path, "/intoxication_ttest.csv"))
 intox_ttest
 
-# Reformat data for one-way ANOVA across doses
+# Reformat data for two-way ANOVA across doses (time)
 intox_long <- intox %>% select(!mean) %>% 
   pivot_longer(cols = dose_01:dose_12, 
-               names_to = "dose",
+               names_to = "time",
                values_to = "score")
 
 # Compute two-way ANOVA for behavioral intoxication across doses
-one.way <- intox_long %>% 
-  anova_test(dv = score, between = c(Condition, dose))
-one.way
+two.way <- intox_long %>% 
+  anova_test(dv = score, wid = id, between = Condition, within = time)
+two.way
 
-get_anova_table(one.way) %>%
+get_anova_table(two.way, correction = "none") %>%
   rownames_to_column(var = "Factor") %>%
   as_tibble() %>% 
-  write_csv(., str_c(results_path, "/intoxication_aov1.csv"))
+  write_csv(., str_c(results_path, "/intoxication_aov2.csv"))
 
 
 # Pairwise paired t-test comparisons
 # a priori comparisons between drug groups within time
 pwc <- intox_long %>% 
-  group_by(dose) %>% 
+  group_by(time) %>% 
   pairwise_t_test(
     score ~ Condition, paired = FALSE, 
     p.adjust.method = "bonferroni"
@@ -204,7 +204,6 @@ pwc <- pwc %>%
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/intoxication_pwc.csv"))
 pwc
-# Significant effect of drug for both CON and EtOH
 
 ```
 
@@ -247,6 +246,22 @@ dose_ttest <- dose %>%
   as_tibble() %>% 
   write_csv(., str_c(results_path, "/dose_ttest.csv"))
 dose_ttest
+
+# Reformat data for two-way ANOVA across days
+dose_long <- dose %>% select(id, Condition, day_01, day_02, day_03, day_04) %>% 
+  pivot_longer(cols = day_01:day_04, 
+               names_to = "time",
+               values_to = "dose")
+
+# Compute two-way ANOVA for dose across days
+two.way <- dose_long %>% 
+  anova_test(dv = dose, wid = id, between = Condition, within = time)
+two.way
+
+get_anova_table(two.way, correction = "none") %>%
+  rownames_to_column(var = "Factor") %>%
+  as_tibble() %>% 
+  write_csv(., str_c(results_path, "/dose_aov2.csv"))
 ```
 
 

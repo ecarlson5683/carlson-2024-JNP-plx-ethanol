@@ -1,0 +1,4 @@
+Factor,Effect,DFn,DFd,F,p,p<.05,ges
+1,Condition,1,15,0.092,0.765,,0.004
+2,time,3,45,47.029,6.41e-14,*,0.555
+3,Condition:time,3,45,1.037,0.386,,0.027

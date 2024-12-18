@@ -1,4 +1,4 @@
-Factor,dose,.y.,group1,group2,n1,n2,p,p.signif,p.adj,p.adj.signif
+Factor,time,.y.,group1,group2,n1,n2,p,p.signif,p.adj,p.adj.signif
 1,dose_02,score,PLX-EtOH,VEH-EtOH,8,9,0.066,ns,0.066,ns
 2,dose_03,score,PLX-EtOH,VEH-EtOH,8,9,0.00558,**,0.00558,**
 3,dose_04,score,PLX-EtOH,VEH-EtOH,8,9,0.0962,ns,0.0962,ns
